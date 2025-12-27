@@ -1,36 +1,73 @@
 import { Tabs } from 'expo-router';
 import React from 'react';
-
-import { HapticTab } from '@/components/haptic-tab';
-import { IconSymbol } from '@/components/ui/icon-symbol';
-import { Colors } from '@/constants/theme';
-import { useColorScheme } from '@/hooks/use-color-scheme';
+import { View, StyleSheet } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 
 export default function TabLayout() {
-  const colorScheme = useColorScheme();
-
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: Colors[colorScheme ?? 'light'].tint,
+        tabBarActiveTintColor: '#5FCCC4',
+        tabBarInactiveTintColor: '#999999',
         headerShown: false,
-        tabBarButton: HapticTab,
+        tabBarStyle: {
+          backgroundColor: '#FFFFFF',
+          borderTopWidth: 1,
+          borderTopColor: '#E5E5E5',
+          height: 85,
+          paddingBottom: 25,
+          paddingTop: 10,
+        },
+        tabBarLabelStyle: {
+          fontSize: 14,
+          fontWeight: '500',
+        },
       }}>
       <Tabs.Screen
-        name="index"
+        name="search"
         options={{
           title: 'Search',
-          tabBarIcon: ({ color }) => <IconSymbol size={38} name="magnifyingglass" color={color} />,
+          tabBarIcon: ({ color, focused }) => (
+            <View style={[styles.iconContainer, focused && styles.iconContainerActive]}>
+              <Ionicons name="search" size={24} color={focused ? '#FFFFFF' : color} />
+            </View>
+          ),
         }}
       />
       <Tabs.Screen
-        name="add-cars"
+        name="add"
         options={{
           title: 'Add',
-          tabBarIcon: ({ color }) => <IconSymbol size={38} name="plus.circle" color={color} />,
+          tabBarIcon: ({ color }) => (
+            <Ionicons name="add-circle-outline" size={32} color={color} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="index"
+        options={{
+          href: null,
+        }}
+      />
+      <Tabs.Screen
+        name="explore"
+        options={{
+          href: null,
         }}
       />
     </Tabs>
   );
 }
 
+const styles = StyleSheet.create({
+  iconContainer: {
+    width: 50,
+    height: 50,
+    borderRadius: 8,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  iconContainerActive: {
+    backgroundColor: '#5FCCC4',
+  },
+});

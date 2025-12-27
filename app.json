@@ -1,11 +1,11 @@
 {
   "expo": {
-    "name": "manage-cars",
-    "slug": "manage-cars",
+    "name": "Vehicle-management",
+    "slug": "Vehicle-management",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "managecars",
+    "scheme": "vehiclemanagement",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
