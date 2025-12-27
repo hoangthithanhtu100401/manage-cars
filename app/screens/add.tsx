@@ -1,16 +1,16 @@
+import { useRouter } from 'expo-router';
 import React, { useState } from 'react';
 import {
-  View,
-  Text,
-  StyleSheet,
-  ScrollView,
-  TouchableOpacity,
   Alert,
   Animated,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from 'react-native';
-import { useRouter } from 'expo-router';
-import { InputField } from '../../components/common/InputField';
 import { Button } from '../../components/common/Button';
+import { InputField } from '../../components/common/InputField';
 import { storageService } from '../../services/storageService';
 import { getCurrentDate } from '../../utils/dateUtils';
 
@@ -31,7 +31,7 @@ export default function AddVehicleScreen() {
 
   const handleSave = async () => {
     if (!name.trim() || !licensePlate.trim() || !phone.trim()) {
-      Alert.alert('错误', '请填写所有字段');
+      Alert.alert('錯誤', '請填寫所有欄位');
       return;
     }
 
@@ -44,14 +44,14 @@ export default function AddVehicleScreen() {
         status: 'OUT',
       });
 
-      Alert.alert('成功', '保存成功', [
+      Alert.alert('成功', '儲存成功', [
         {
-          text: '确定',
+          text: '確定',
           onPress: () => router.back(),
         },
       ]);
     } catch (error) {
-      Alert.alert('错误', '保存失败');
+      Alert.alert('錯誤', '儲存失敗');
     }
   };
 
@@ -61,42 +61,42 @@ export default function AddVehicleScreen() {
         <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
           <Text style={styles.backText}>←</Text>
         </TouchableOpacity>
-        <Text style={styles.title}>添加车辆</Text>
+        <Text style={styles.title}>新增車輛</Text>
         <View style={styles.placeholder} />
       </View>
 
       <Animated.View style={[styles.content, { opacity: fadeAnim }]}>
         <ScrollView showsVerticalScrollIndicator={false}>
           <InputField
-            label="车主姓名"
+            label="車主姓名"
             value={name}
             onChangeText={setName}
-            placeholder="请输入车主姓名"
+            placeholder="請輸入車主姓名"
           />
 
           <InputField
-            label="车牌号"
+            label="車牌號"
             value={licensePlate}
             onChangeText={setLicensePlate}
-            placeholder="请输入车牌号"
+            placeholder="請輸入車牌號"
           />
 
           <InputField
-            label="电话"
+            label="電話"
             value={phone}
             onChangeText={setPhone}
-            placeholder="请输入电话号码"
+            placeholder="請輸入電話號碼"
           />
 
           <InputField
-            label="添加日期"
+            label="新增日期"
             value={getCurrentDate()}
             onChangeText={() => {}}
             editable={false}
           />
 
           <View style={styles.buttonContainer}>
-            <Button title="保存" onPress={handleSave} variant="primary" />
+            <Button title="儲存" onPress={handleSave} variant="primary" />
           </View>
         </ScrollView>
       </Animated.View>

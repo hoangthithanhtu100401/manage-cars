@@ -1,17 +1,17 @@
-import React, { useState, useEffect } from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  TextInput,
-  FlatList,
-  TouchableOpacity,
-  Animated,
-} from 'react-native';
 import { useRouter } from 'expo-router';
-import { Vehicle } from '../../types/vehicle';
-import { storageService } from '../../services/storageService';
+import React, { useEffect, useState } from 'react';
+import {
+  Animated,
+  FlatList,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 import { VehicleCard } from '../../components/common/VehicleCard';
+import { storageService } from '../../services/storageService';
+import { Vehicle } from '../../types/vehicle';
 
 export default function SearchScreen() {
   const router = useRouter();
@@ -64,7 +64,7 @@ export default function SearchScreen() {
         <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
           <Text style={styles.backText}>←</Text>
         </TouchableOpacity>
-        <Text style={styles.title}>查询车辆</Text>
+        <Text style={styles.title}>查詢車輛</Text>
         <View style={styles.placeholder} />
       </View>
 
@@ -72,7 +72,7 @@ export default function SearchScreen() {
         <View style={styles.searchContainer}>
           <TextInput
             style={styles.searchInput}
-            placeholder="请输入车牌号查询"
+            placeholder="請輸入車牌號查詢"
             placeholderTextColor="#CCCCCC"
             value={searchQuery}
             onChangeText={setSearchQuery}
@@ -82,7 +82,7 @@ export default function SearchScreen() {
         {filteredVehicles.length === 0 ? (
           <View style={styles.emptyContainer}>
             <Text style={styles.emptyText}>
-              {searchQuery ? '未找到相关车辆' : '暂无车辆数据'}
+              {searchQuery ? '未找到相關車輛' : '暫無車輛資料'}
             </Text>
           </View>
         ) : (

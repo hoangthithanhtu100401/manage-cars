@@ -1,17 +1,17 @@
-import React, { useState, useEffect } from 'react';
+import { useLocalSearchParams, useRouter } from 'expo-router';
+import React, { useEffect, useState } from 'react';
 import {
-  View,
-  Text,
-  StyleSheet,
-  ScrollView,
-  TouchableOpacity,
   Alert,
   Animated,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from 'react-native';
-import { useRouter, useLocalSearchParams } from 'expo-router';
-import { Vehicle } from '../../types/vehicle';
-import { storageService } from '../../services/storageService';
 import { Button } from '../../components/common/Button';
+import { storageService } from '../../services/storageService';
+import { Vehicle } from '../../types/vehicle';
 
 export default function DetailScreen() {
   const router = useRouter();
@@ -42,9 +42,9 @@ export default function DetailScreen() {
     try {
       await storageService.updateVehicleStatus(vehicle.id, status);
       setVehicle({ ...vehicle, status });
-      Alert.alert('成功', `状态已更新为 ${status}`);
+      Alert.alert('成功', `狀態已更新為 ${status}`);
     } catch (error) {
-      Alert.alert('错误', '状态更新失败');
+      Alert.alert('錯誤', '狀態更新失敗');
     }
   };
 
@@ -58,20 +58,20 @@ export default function DetailScreen() {
   };
 
   const handleDelete = () => {
-    Alert.alert('确认删除', '确定要删除这辆车吗？', [
+    Alert.alert('確認刪除', '確定要刪除這輛車嗎？', [
       { text: '取消', style: 'cancel' },
       {
-        text: '删除',
+        text: '刪除',
         style: 'destructive',
         onPress: async () => {
           if (vehicle) {
             try {
               await storageService.deleteVehicle(vehicle.id);
-              Alert.alert('成功', '删除成功', [
-                { text: '确定', onPress: () => router.back() },
+              Alert.alert('成功', '刪除成功', [
+                { text: '確定', onPress: () => router.back() },
               ]);
             } catch (error) {
-              Alert.alert('错误', '删除失败');
+              Alert.alert('錯誤', '刪除失敗');
             }
           }
         },
@@ -82,7 +82,7 @@ export default function DetailScreen() {
   if (!vehicle) {
     return (
       <View style={styles.container}>
-        <Text>加载中...</Text>
+        <Text>載入中...</Text>
       </View>
     );
   }
@@ -93,9 +93,9 @@ export default function DetailScreen() {
         <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
           <Text style={styles.backText}>←</Text>
         </TouchableOpacity>
-        <Text style={styles.title}>车辆详情</Text>
+        <Text style={styles.title}>車輛詳情</Text>
         <TouchableOpacity onPress={handleEdit} style={styles.editButton}>
-          <Text style={styles.editText}>编辑</Text>
+          <Text style={styles.editText}>編輯</Text>
         </TouchableOpacity>
       </View>
 
@@ -103,35 +103,35 @@ export default function DetailScreen() {
         <ScrollView showsVerticalScrollIndicator={false}>
           <View style={styles.infoCard}>
             <View style={styles.infoRow}>
-              <Text style={styles.label}>车主姓名</Text>
+              <Text style={styles.label}>車主姓名</Text>
               <Text style={styles.value}>{vehicle.name}</Text>
             </View>
 
             <View style={styles.divider} />
 
             <View style={styles.infoRow}>
-              <Text style={styles.label}>车牌号</Text>
+              <Text style={styles.label}>車牌號</Text>
               <Text style={styles.value}>{vehicle.licensePlate}</Text>
             </View>
 
             <View style={styles.divider} />
 
             <View style={styles.infoRow}>
-              <Text style={styles.label}>电话</Text>
+              <Text style={styles.label}>電話</Text>
               <Text style={styles.value}>{vehicle.phone}</Text>
             </View>
 
             <View style={styles.divider} />
 
             <View style={styles.infoRow}>
-              <Text style={styles.label}>添加日期</Text>
+              <Text style={styles.label}>新增日期</Text>
               <Text style={styles.value}>{vehicle.dateAdded}</Text>
             </View>
 
             <View style={styles.divider} />
 
             <View style={styles.infoRow}>
-              <Text style={styles.label}>当前状态</Text>
+              <Text style={styles.label}>當前狀態</Text>
               <View style={[styles.statusBadge, vehicle.status === 'IN' ? styles.inBadge : styles.outBadge]}>
                 <Text style={styles.statusText}>{vehicle.status}</Text>
               </View>
@@ -140,19 +140,19 @@ export default function DetailScreen() {
 
           <View style={styles.buttonGroup}>
             <Button
-              title="进入 (IN)"
+              title="進入 (IN)"
               onPress={() => handleStatusChange('IN')}
               variant="in"
             />
             <Button
-              title="离开 (OUT)"
+              title="離開 (OUT)"
               onPress={() => handleStatusChange('OUT')}
               variant="out"
             />
           </View>
 
           <TouchableOpacity style={styles.deleteButton} onPress={handleDelete}>
-            <Text style={styles.deleteText}>删除车辆</Text>
+            <Text style={styles.deleteText}>刪除車輛</Text>
           </TouchableOpacity>
         </ScrollView>
       </Animated.View>

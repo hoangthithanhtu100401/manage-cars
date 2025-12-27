@@ -1,17 +1,17 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  TextInput,
-  FlatList,
-  TouchableOpacity,
-  Animated,
-} from 'react-native';
-import { useRouter, useFocusEffect } from 'expo-router';
-import { Vehicle } from '@/types/vehicle';
-import { storageService } from '@/services/storageService';
 import { VehicleCard } from '@/components/common/VehicleCard';
+import { storageService } from '@/services/storageService';
+import { Vehicle } from '@/types/vehicle';
+import { useFocusEffect, useRouter } from 'expo-router';
+import React, { useCallback, useEffect, useState } from 'react';
+import {
+  Animated,
+  FlatList,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 
 export default function SearchTab() {
   const router = useRouter();
@@ -67,7 +67,7 @@ export default function SearchTab() {
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <Text style={styles.title}>车辆管理</Text>
+        <Text style={styles.title}>車輛管理</Text>
       </View>
 
       <Animated.View style={[styles.content, { opacity: fadeAnim }]}>
@@ -87,7 +87,7 @@ export default function SearchTab() {
         {filteredVehicles.length === 0 ? (
           <View style={styles.emptyContainer}>
             <Text style={styles.emptyText}>
-              {searchQuery ? '未找到相关车辆' : '暂无车辆数据'}
+              {searchQuery ? '未找到相關車輛' : '暫無車輛資料'}
             </Text>
           </View>
         ) : (
