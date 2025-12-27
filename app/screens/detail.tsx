@@ -93,7 +93,7 @@ export default function DetailScreen() {
         <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
           <Text style={styles.backText}>←</Text>
         </TouchableOpacity>
-        <Text style={styles.title}>車輛詳情</Text>
+        <Text style={styles.title}>{vehicle.licensePlate}</Text>
         <TouchableOpacity onPress={handleEdit} style={styles.editButton}>
           <Text style={styles.editText}>編輯</Text>
         </TouchableOpacity>

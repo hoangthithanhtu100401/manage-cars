@@ -126,7 +126,9 @@ const styles = StyleSheet.create({
   },
   content: {
     flex: 1,
-    padding: 20,
+    // padding: 0,
+    paddingHorizontal: 20,
+    paddingTop: 20,
   },
   searchContainer: {
     marginBottom: 20,
