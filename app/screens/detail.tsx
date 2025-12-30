@@ -1,3 +1,4 @@
+import { Ionicons } from '@expo/vector-icons';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import {
@@ -9,7 +10,6 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import { Button } from '../../components/common/Button';
 import { storageService } from '../../services/storageService';
 import { Vehicle } from '../../types/vehicle';
 
@@ -42,18 +42,8 @@ export default function DetailScreen() {
     try {
       await storageService.updateVehicleStatus(vehicle.id, status);
       setVehicle({ ...vehicle, status });
-      Alert.alert('成功', `狀態已更新為 ${status}`);
     } catch (error) {
       Alert.alert('錯誤', '狀態更新失敗');
-    }
-  };
-
-  const handleEdit = () => {
-    if (vehicle) {
-      router.push({
-        pathname: '/screens/edit',
-        params: { vehicleId: vehicle.id },
-      });
     }
   };
 
@@ -67,9 +57,7 @@ export default function DetailScreen() {
           if (vehicle) {
             try {
               await storageService.deleteVehicle(vehicle.id);
-              Alert.alert('成功', '刪除成功', [
-                { text: '確定', onPress: () => router.back() },
-              ]);
+              router.back();
             } catch (error) {
               Alert.alert('錯誤', '刪除失敗');
             }
@@ -87,16 +75,16 @@ export default function DetailScreen() {
     );
   }
 
+  const isStatusIn = vehicle.status === 'IN';
+
   return (
     <View style={styles.container}>
       <View style={styles.header}>
         <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
-          <Text style={styles.backText}>←</Text>
+          <Ionicons name="arrow-back" size={24} color="#333" />
         </TouchableOpacity>
         <Text style={styles.title}>{vehicle.licensePlate}</Text>
-        <TouchableOpacity onPress={handleEdit} style={styles.editButton}>
-          <Text style={styles.editText}>編輯</Text>
-        </TouchableOpacity>
+        <View style={styles.placeholder} />
       </View>
 
       <Animated.View style={[styles.content, { opacity: fadeAnim }]}>
@@ -106,50 +94,44 @@ export default function DetailScreen() {
               <Text style={styles.label}>車主姓名</Text>
               <Text style={styles.value}>{vehicle.name}</Text>
             </View>
-
             <View style={styles.divider} />
-
             <View style={styles.infoRow}>
-              <Text style={styles.label}>車牌號</Text>
+              <Text style={styles.label}>行車執照</Text>
               <Text style={styles.value}>{vehicle.licensePlate}</Text>
             </View>
-
             <View style={styles.divider} />
-
             <View style={styles.infoRow}>
-              <Text style={styles.label}>電話</Text>
+              <Text style={styles.label}>手機號碼</Text>
               <Text style={styles.value}>{vehicle.phone}</Text>
             </View>
-
             <View style={styles.divider} />
-
             <View style={styles.infoRow}>
               <Text style={styles.label}>新增日期</Text>
               <Text style={styles.value}>{vehicle.dateAdded}</Text>
             </View>
-
             <View style={styles.divider} />
-
             <View style={styles.infoRow}>
               <Text style={styles.label}>當前狀態</Text>
-              <View style={[styles.statusBadge, vehicle.status === 'IN' ? styles.inBadge : styles.outBadge]}>
+              <View style={[styles.statusBadge, isStatusIn ? styles.inBadge : styles.outBadge]}>
                 <Text style={styles.statusText}>{vehicle.status}</Text>
               </View>
             </View>
           </View>
 
-          <View style={styles.buttonGroup}>
-            <Button
-              title="進入 (IN)"
-              onPress={() => handleStatusChange('IN')}
-              variant="in"
+          <TouchableOpacity
+            style={[styles.actionButton, isStatusIn ? styles.outButton : styles.inButton]}
+            onPress={() => handleStatusChange(isStatusIn ? 'OUT' : 'IN')}
+          >
+            <Ionicons
+              name={isStatusIn ? 'arrow-up-outline' : 'arrow-down-outline'}
+              size={24}
+              color="#FFFFFF"
+              style={styles.buttonIcon}
             />
-            <Button
-              title="離開 (OUT)"
-              onPress={() => handleStatusChange('OUT')}
-              variant="out"
-            />
-          </View>
+            <Text style={styles.actionButtonText}>
+              {isStatusIn ? '離開 (OUT)' : '進入 (IN)'}
+            </Text>
+          </TouchableOpacity>
 
           <TouchableOpacity style={styles.deleteButton} onPress={handleDelete}>
             <Text style={styles.deleteText}>刪除車輛</Text>
@@ -173,32 +155,17 @@ const styles = StyleSheet.create({
     paddingBottom: 15,
     paddingHorizontal: 20,
     backgroundColor: '#FFFFFF',
-    borderBottomWidth: 1,
-    borderBottomColor: '#E5E5E5',
   },
   backButton: {
-    width: 40,
-    height: 40,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  backText: {
-    fontSize: 28,
-    color: '#333333',
+    padding: 5,
   },
   title: {
     fontSize: 18,
     fontWeight: '600',
     color: '#333333',
   },
-  editButton: {
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-  },
-  editText: {
-    fontSize: 16,
-    color: '#5FCCC4',
-    fontWeight: '500',
+  placeholder: {
+    width: 34, 
   },
   content: {
     flex: 1,
@@ -206,20 +173,20 @@ const styles = StyleSheet.create({
   },
   infoCard: {
     backgroundColor: '#FFFFFF',
-    borderRadius: 12,
-    padding: 20,
-    marginBottom: 20,
+    borderRadius: 16,
+    padding: 25,
+    marginBottom: 25,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
-    shadowRadius: 4,
-    elevation: 2,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.08,
+    shadowRadius: 12,
+    elevation: 5,
   },
   infoRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingVertical: 12,
+    paddingVertical: 15,
   },
   label: {
     fontSize: 16,
@@ -235,11 +202,12 @@ const styles = StyleSheet.create({
     backgroundColor: '#F0F0F0',
   },
   statusBadge: {
-    paddingHorizontal: 16,
-    paddingVertical: 6,
-    borderRadius: 20,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 8,
     minWidth: 60,
     alignItems: 'center',
+    justifyContent: 'center',
   },
   inBadge: {
     backgroundColor: '#5FCCC4',
@@ -249,17 +217,35 @@ const styles = StyleSheet.create({
   },
   statusText: {
     color: '#FFFFFF',
-    fontSize: 14,
+    fontSize: 16,
     fontWeight: '600',
   },
-  buttonGroup: {
+  actionButton: {
     flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderRadius: 12,
+    paddingVertical: 18,
     marginBottom: 20,
+  },
+  inButton: {
+    backgroundColor: '#5FCCC4',
+  },
+  outButton: {
+    backgroundColor: '#FF8B9A',
+  },
+  buttonIcon: {
+    marginRight: 10,
+  },
+  actionButtonText: {
+    color: '#FFFFFF',
+    fontSize: 18,
+    fontWeight: '600',
   },
   deleteButton: {
     backgroundColor: '#FFFFFF',
     borderRadius: 12,
-    paddingVertical: 16,
+    paddingVertical: 18,
     alignItems: 'center',
     borderWidth: 1,
     borderColor: '#FF8B9A',

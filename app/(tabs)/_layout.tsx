@@ -1,89 +1,79 @@
 import { Ionicons } from '@expo/vector-icons';
 import { Tabs } from 'expo-router';
 import React from 'react';
-import { StyleSheet, useWindowDimensions, View } from 'react-native';
+import { Platform, Pressable, StyleSheet } from 'react-native';
 
 export default function TabLayout() {
-  const { width } = useWindowDimensions();
-  const tabWidth = width / 2;
-
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: '#FFFFFF',
-        tabBarInactiveTintColor: '#333333',
+        // 1. MÀU SẮC & STYLE CƠ BẢN
         headerShown: false,
+        tabBarActiveTintColor: '#FFFFFF', // Màu icon/text khi chọn
+        tabBarInactiveTintColor: '#333333', // Màu icon/text khi KHÔNG chọn
+        
+        // 2. XỬ LÝ MÀU NỀN (Quan trọng: Dùng thuộc tính có sẵn thay vì custom View)
+        tabBarActiveBackgroundColor: '#5FCCC4', 
+        tabBarInactiveBackgroundColor: '#FFFFFF', 
+
+        // 3. STYLE CHO THANH TAB
         tabBarStyle: {
-          backgroundColor: '#FFFFFF',
           borderTopWidth: 1,
           borderTopColor: '#E5E5E5',
-          height: 80 ,
-          paddingBottom: 20,
-          paddingTop: 20,
-          marginBottom: 0,
+          height: 70,
+          // Đảm bảo padding bằng 0 để màu nền tràn viền
+          paddingBottom: 0, 
+          paddingTop: 0,
         },
         tabBarLabelStyle: {
-          fontSize: 16,
+          fontSize: 14, // Giảm một chút cho cân đối
           fontWeight: '500',
+          marginBottom: 10, // Căn chỉnh label cách đáy một chút
         },
+        // Bỏ padding mặc định để màu nền phủ kín nút
         tabBarItemStyle: {
-          flex: 1,
+           padding: 0,
+           margin: 0,
         },
+
+        // 4. TẮT HIỆU ỨNG RIPPLE/HIGHLIGHT (Sửa lỗi "sai sai" khi bấm)
+        // tabBarButton: (props) => (
+        //   <Pressable
+        //     {...props}
+        //     android_ripple={null} 
+        //     style={({ pressed }) => [
+        //       props.style,
+        //       pressed ? { opacity: 0.8 } : null, 
+        //     ]}
+        //   />
+        // ),
       }}>
+
       <Tabs.Screen
         name="search"
         options={{
           title: 'Search',
-          tabBarIcon: ({ color, focused }) => (
-            <View style={[
-              styles.iconContainer,
-              { width: tabWidth },
-              focused && styles.iconContainerActive
-            ]}>
-              <Ionicons name="search" size={28} color={color} />
-            </View>
+          // Code icon giờ rất gọn, không cần View bao bọc
+          tabBarIcon: ({ color }) => (
+            <Ionicons name="search" size={28} color={color} />
           ),
         }}
       />
+
       <Tabs.Screen
         name="add"
         options={{
           title: 'Add',
-          tabBarIcon: ({ color, focused }) => (
-            <View style={[
-              styles.iconContainer,
-              { width: tabWidth },
-              focused && styles.iconContainerActive
-            ]}>
-              <Ionicons name="add-circle-outline" size={32} color={color} />
-            </View>
+          tabBarIcon: ({ color }) => (
+            <Ionicons name="add-circle-outline" size={32} color={color} />
           ),
         }}
       />
-      <Tabs.Screen
-        name="index"
-        options={{
-          href: null,
-        }}
-      />
-      <Tabs.Screen
-        name="explore"
-        options={{
-          href: null,
-        }}
-      />
+
+      {/* Các màn hình ẩn */}
+      <Tabs.Screen name="index" options={{ href: null }} />
+      <Tabs.Screen name="explore" options={{ href: null }} />
     </Tabs>
   );
 }
 
-const styles = StyleSheet.create({
-  iconContainer: {
-    height: 80,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: 'transparent',
-  },
-  iconContainerActive: {
-    backgroundColor: '#5FCCC4',
-  },
-});
