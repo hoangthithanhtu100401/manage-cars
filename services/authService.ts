@@ -1,5 +1,6 @@
-// services/authService.ts
 import * as SecureStore from "expo-secure-store";
+import { apiDelete } from "@/services/api";
+import { clearToken, getToken } from "@/services/token";
 
 const AUTH_KEY = "AUTH_SESSION_V1";
 
@@ -39,4 +40,22 @@ export const authService = {
     const auth = await this.getAuth();
     return auth?.token ?? null;
   },
+  async logout() {
+    const token = await getToken();        
+    const auth = await this.getAuth();       
+
+    try {
+      if (token && auth?.refreshToken && auth?.userId != null) {
+        await apiDelete("/api/v1/logout", token, {
+          refreshToken: auth.refreshToken,
+          userId: auth.userId,
+        });
+      }
+    } catch (e) {
+      console.log("LOGOUT API ERROR:", e);
+    } finally {
+      await this.clearAuth();
+      await clearToken();
+    }
+     },
 };
