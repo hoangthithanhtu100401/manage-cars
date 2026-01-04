@@ -3,7 +3,7 @@ export interface Vehicle {
   name: string;
   licensePlate: string;
   phone: string;
-  dateAdded: string;
+  createdAt: string;
   status: 'IN' | 'OUT';
 }
 

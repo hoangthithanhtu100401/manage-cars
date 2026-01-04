@@ -1,6 +1,8 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
+import { useFocusEffect } from "expo-router";
+
 import {
   Alert,
   Animated,
@@ -12,15 +14,32 @@ import {
 } from 'react-native';
 import { storageService } from '../../services/storageService';
 import { Vehicle } from '../../types/vehicle';
+import { vehicleService } from "@/services/vehicleService";
+import { authService } from "@/services/authService";
 
 export default function DetailScreen() {
   const router = useRouter();
   const params = useLocalSearchParams();
   const [vehicle, setVehicle] = useState<Vehicle | null>(null);
   const fadeAnim = React.useRef(new Animated.Value(0)).current;
+  const [changingStatus, setChangingStatus] = useState(false);
+  const vehicleId = Array.isArray(params.vehicleId) ? params.vehicleId[0] : params.vehicleId;
 
+  useFocusEffect(
+  useCallback(() => {
+    (async () => {
+      await loadVehicle();
+    })();
+  }, [vehicleId])
+);
+
+
+  const loadVehicle = async () => {
+    const vehicles = await storageService.loadVehicles();
+    const found = vehicles.find(v => v.id === String(vehicleId));
+    if (found) setVehicle(found);
+  };
   useEffect(() => {
-    loadVehicle();
     Animated.timing(fadeAnim, {
       toValue: 1,
       duration: 300,
@@ -28,13 +47,7 @@ export default function DetailScreen() {
     }).start();
   }, []);
 
-  const loadVehicle = async () => {
-    const vehicles = await storageService.loadVehicles();
-    const found = vehicles.find(v => v.id === params.vehicleId);
-    if (found) {
-      setVehicle(found);
-    }
-  };
+
   const handleEdit = () => {
       if (vehicle) {
         router.push({
@@ -44,36 +57,65 @@ export default function DetailScreen() {
       }
     };
 
-  const handleStatusChange = async (status: 'IN' | 'OUT') => {
-    if (!vehicle) return;
+  const handleStatusChange = async (status: "IN" | "OUT") => {
+  if (!vehicle) return;
+  if (changingStatus) return;
 
-    try {
-      await storageService.updateVehicleStatus(vehicle.id, status);
-      setVehicle({ ...vehicle, status });
-    } catch (error) {
-      Alert.alert('錯誤', '狀態更新失敗');
-    }
-  };
+  const current = vehicle.status;
+  const next = status;
+
+  setChangingStatus(true);
+
+  try {
+    setVehicle({ ...vehicle, status: next });
+    await storageService.updateVehicleStatus(vehicle.id, next);
+
+    const auth = await authService.getAuth();
+    const employeeId = auth?.userId;
+    if (!employeeId) throw new Error("Missing employeeId (userId)");
+
+    await vehicleService.updateStatus({
+      vehicleId: Number(vehicle.id),
+      employeeId: Number(employeeId),
+      status: next,
+    });
+  } catch (error) {
+    console.log("STATUS UPDATE ERROR:", error);
+
+    setVehicle({ ...vehicle, status: current });
+    await storageService.updateVehicleStatus(vehicle.id, current);
+    Alert.alert("錯誤", "狀態更新失敗");
+  } finally {
+    setChangingStatus(false);
+  }
+};
+
+
 
   const handleDelete = () => {
-    Alert.alert('確認刪除', '確定要刪除這輛車嗎？', [
-      { text: '取消', style: 'cancel' },
+    Alert.alert("確認刪除", "確定要刪除這輛車嗎？", [
+      { text: "取消", style: "cancel" },
       {
-        text: '刪除',
-        style: 'destructive',
+        text: "刪除",
+        style: "destructive",
         onPress: async () => {
-          if (vehicle) {
-            try {
-              await storageService.deleteVehicle(vehicle.id);
-              router.back();
-            } catch (error) {
-              Alert.alert('錯誤', '刪除失敗');
-            }
+          if (!vehicle) return;
+
+          try {
+            await vehicleService.deleteById(Number(vehicle.id));
+
+            await storageService.deleteVehicle(vehicle.id);
+
+            router.back();
+          } catch (error) {
+            console.log("DELETE VEHICLE ERROR:", error);
+            Alert.alert("錯誤", "刪除失敗");
           }
         },
       },
     ]);
   };
+
 
   if (!vehicle) {
     return (
@@ -98,7 +140,6 @@ export default function DetailScreen() {
       </View>
 
       <Animated.View style={[styles.content, { opacity: fadeAnim }]}>
-        <ScrollView showsVerticalScrollIndicator={false}>
           <View style={styles.infoCard}>
             <View style={styles.infoRow}>
               <Text style={styles.label}>車主姓名</Text>
@@ -117,7 +158,7 @@ export default function DetailScreen() {
             <View style={styles.divider} />
             <View style={styles.infoRow}>
               <Text style={styles.label}>新增日期</Text>
-              <Text style={styles.value}>{vehicle.dateAdded}</Text>
+              <Text style={styles.value}>{vehicle.createdAt}</Text>
             </View>
             <View style={styles.divider} />
             <View style={styles.infoRow}>
@@ -129,8 +170,13 @@ export default function DetailScreen() {
           </View>
 
           <TouchableOpacity
-            style={[styles.actionButton, isStatusIn ? styles.outButton : styles.inButton]}
-            onPress={() => handleStatusChange(isStatusIn ? 'OUT' : 'IN')}
+            disabled={changingStatus}
+            style={[
+              styles.actionButton,
+              isStatusIn ? styles.outButton : styles.inButton,
+              changingStatus && { opacity: 0.6 },
+            ]}
+            onPress={() => handleStatusChange(isStatusIn ? "OUT" : "IN")}
           >
             <Ionicons
               name={isStatusIn ? 'arrow-up-outline' : 'arrow-down-outline'}
@@ -146,7 +192,6 @@ export default function DetailScreen() {
           <TouchableOpacity style={styles.deleteButton} onPress={handleDelete}>
             <Text style={styles.deleteText}>刪除車輛</Text>
           </TouchableOpacity>
-        </ScrollView>
       </Animated.View>
     </View>
   );
@@ -197,7 +242,7 @@ const styles = StyleSheet.create({
   },
   label: {
     fontSize: 16,
-    color: '#666666',
+    color: '#000000',
   },
   value: {
     fontSize: 16,
