@@ -123,7 +123,7 @@ export default function SearchTab() {
           {filteredVehicles.length === 0 ? (
             <View style={styles.emptyContainer}>
               <Text style={styles.emptyText}>
-                {searchQuery ? 'Không tìm thấy xe' : 'Chưa có dữ liệu xe'}
+                {searchQuery ? '未找到車輛' : '沒有可用的車輛數據'}
               </Text>
             </View>
           ) : (

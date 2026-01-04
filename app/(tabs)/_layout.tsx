@@ -2,10 +2,12 @@ import { Ionicons } from '@expo/vector-icons';
 import { Tabs } from 'expo-router';
 import React from 'react';
 import { Platform, Pressable, StyleSheet } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function TabLayout() {
   return (
-    <Tabs
+    <SafeAreaView style={{ flex: 1 }} edges={['bottom']}>
+<Tabs
       screenOptions={{
         // 1. MÀU SẮC & STYLE CƠ BẢN
         headerShown: false,
@@ -35,18 +37,6 @@ export default function TabLayout() {
            padding: 0,
            margin: 0,
         },
-
-        // 4. TẮT HIỆU ỨNG RIPPLE/HIGHLIGHT (Sửa lỗi "sai sai" khi bấm)
-        // tabBarButton: (props) => (
-        //   <Pressable
-        //     {...props}
-        //     android_ripple={null} 
-        //     style={({ pressed }) => [
-        //       props.style,
-        //       pressed ? { opacity: 0.8 } : null, 
-        //     ]}
-        //   />
-        // ),
       }}>
 
       <Tabs.Screen
@@ -74,6 +64,8 @@ export default function TabLayout() {
       <Tabs.Screen name="index" options={{ href: null }} />
       <Tabs.Screen name="explore" options={{ href: null }} />
     </Tabs>
+    </SafeAreaView>
+    
   );
 }
 

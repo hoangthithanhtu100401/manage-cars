@@ -1,6 +1,6 @@
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
-import React, { useMemo, useState } from "react";
+import React, { useMemo, useState, useEffect  } from "react";
 import {
     KeyboardAvoidingView,
     Platform,
@@ -13,7 +13,15 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Modal } from "react-native";
-
+import { loginApi } from "@/services/auth";
+import { setToken } from "@/services/token";
+import {
+  getRememberEnabled,
+  loadRememberAccount,
+  saveRememberAccount,
+  clearRememberAccount,
+  setRememberEnabled,
+} from "@/services/remember";
 
 const TEAL = "#59C6BC";
 const BORDER = "#CFCFCF";
@@ -37,6 +45,8 @@ function FieldLabel({
 
 export default function LoginScreen() {
   const router = useRouter();
+    const [loading, setLoading] = useState(false);
+const [remember, setRemember] = useState(false);
 
   const [ownerName, setOwnerName] = useState("");
   const [license, setLicense] = useState("");
@@ -47,6 +57,19 @@ export default function LoginScreen() {
     const [errorVisible, setErrorVisible] = useState(false);
     const [touchedPw, setTouchedPw] = useState(false);
     const [touchedAccount, setTouchedAccount] = useState(false);
+    useEffect(() => {
+  (async () => {
+    const enabled = await getRememberEnabled();
+    setRemember(enabled);
+
+    if (enabled) {
+      const { username, password } = await loadRememberAccount();
+      if (username) setOwnerName(username);
+      if (password) setLicense(password);
+    }
+  })();
+}, []);
+
 const accountError = useMemo(() => {
   if (!touchedAccount) return "";
   if (ownerName.trim().length === 0) return "此欄位必填";
@@ -79,24 +102,37 @@ const accountError = useMemo(() => {
     }, [ownerName, license]);
 
 
-  const onSubmit = () => {
-    console.log("LOGIN:", { ownerName, license });
-
+  const onSubmit = async () => {
     setTouchedAccount(true);
     setTouchedPw(true);
 
     if (!canSubmit) return;
 
-    // TODO: đổi thành check API thật
-    const isValid = ownerName.trim() === "admin" && license.trim() === "abc12345";
+    try {
+            setLoading(true);
 
-    if (!isValid) {
-        setErrorVisible(true);
-        return;
-    }
+            const { token } = await loginApi(ownerName.trim(), license.trim());
+            await setToken(token);
+            if (remember) {
+                await setRememberEnabled(true);
+                await saveRememberAccount(ownerName.trim(), license);
+            } else {
+                await clearRememberAccount();
+            }
 
-    router.replace("/(tabs)/search");
+            router.replace("/(tabs)/search");
+        } catch (e: any) {
+            if (e?.status === 401) {
+            setErrorVisible(true);
+            } else {
+            console.log("LOGIN ERROR:", e);
+            setErrorVisible(true); 
+            }
+        }   finally {
+        setLoading(false);
+        }
     };
+
 
 
   return (
@@ -172,20 +208,36 @@ const accountError = useMemo(() => {
               </Pressable>
             </View>
             {pwError ? <Text style={styles.errorText}>{pwError}</Text> : null}
+<View style={styles.rememberRow}>
+  <Pressable
+    onPress={() => setRemember((v) => !v)}
+    hitSlop={10}
+    style={({ pressed }) => [styles.checkbox, pressed && { opacity: 0.85 }]}
+  >
+    {remember ? (
+      <Ionicons name="checkmark" size={18} color={TEAL} />
+    ) : null}
+  </Pressable>
+
+  <Pressable onPress={() => setRemember((v) => !v)} hitSlop={10}>
+    <Text style={styles.rememberText}>記住帳號</Text>
+  </Pressable>
+</View>
 
 
             {/* Button */}
             <Pressable
-              onPress={onSubmit}
-              disabled={!canSubmit}
-              style={({ pressed }) => [
-                styles.submitBtn,
-                !canSubmit && styles.submitBtnDisabled,
-                pressed && canSubmit && { opacity: 0.9 },
-              ]}
-            >
-              <Text style={styles.submitText}>確定</Text>
+                onPress={onSubmit}
+                disabled={!canSubmit || loading}
+                style={({ pressed }) => [
+                    styles.submitBtn,
+                    (!canSubmit || loading) && styles.submitBtnDisabled,
+                    pressed && canSubmit && !loading && { opacity: 0.9 },
+                ]}
+                >
+                <Text style={styles.submitText}>{loading ? "..." : "確定"}</Text>
             </Pressable>
+
           </View>
 
           {/* Bottom text */}
@@ -395,6 +447,27 @@ errorText: {
   color: "#FF4D4F",
   fontSize: 14,
   fontWeight: "700",
+},
+rememberRow: {
+  marginTop: 16,
+  flexDirection: "row",
+  alignItems: "center",
+  gap: 12,
+},
+checkbox: {
+  width: 22,
+  height: 22,
+  borderRadius: 4,
+  borderWidth: 1.5,
+  borderColor: "#CFCFCF",
+  backgroundColor: "white",
+  justifyContent: "center",
+  alignItems: "center",
+},
+rememberText: {
+  fontSize: 16,
+  color: "#111",
+  fontWeight: "500",
 },
 
 

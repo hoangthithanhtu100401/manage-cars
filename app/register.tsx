@@ -13,6 +13,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { Modal } from "react-native";
+import { registerApi } from "@/services/register";
 
 
 const TEAL = "#5CC6BA";
@@ -103,6 +104,9 @@ export default function RegisterScreen() {
   const [hidePw, setHidePw] = useState(true);
   const [hideConfirm, setHideConfirm] = useState(true);
   const [successVisible, setSuccessVisible] = useState(false);
+const [loading, setLoading] = useState(false);
+const [errorVisible, setErrorVisible] = useState(false);
+const [errorMsg, setErrorMsg] = useState("註冊失敗，請稍後再試");
 
 
   // touched: chỉ hiện lỗi sau khi user chạm vào field (hoặc submit)
@@ -143,7 +147,7 @@ export default function RegisterScreen() {
   const markTouched = (key: FieldKey) =>
     setTouched((prev) => ({ ...prev, [key]: true }));
 
-  const onSubmit = () => {
+const onSubmit = async () => {
     // khi bấm submit, show toàn bộ lỗi
     setTouched({
       name: true,
@@ -155,11 +159,29 @@ export default function RegisterScreen() {
 
     if (!canSubmit) return;
 
-  // TODO: gọi API register
-  console.log("REGISTER:", { name, email, phone, password });
+  try {
+    setLoading(true);
 
-  setSuccessVisible(true);
-  };
+    await registerApi({
+      name: name.trim(),
+      email: email.trim(),
+      phone: phone.trim(),
+      password: password,
+      role: "user",
+    });
+
+    // thành công -> show modal
+    setSuccessVisible(true);
+  } catch (e: any) {
+    console.log("REGISTER ERROR:", e);
+
+    // tuỳ backend trả lỗi kiểu gì, tạm lấy message
+    setErrorMsg(e?.message || "註冊失敗，請稍後再試");
+    setErrorVisible(true);
+  } finally {
+    setLoading(false);
+  }
+};
 
   return (
     <SafeAreaView style={styles.safe}>
@@ -265,21 +287,25 @@ export default function RegisterScreen() {
             {/* bottom link */}
             <View style={styles.bottomRow}>
               <Text style={styles.bottomText}>已有帳號？</Text>
-              <Pressable onPress={() => router.replace("/login")} hitSlop={8}>
+              <Pressable onPress={() => {
+                    setSuccessVisible(false);
+                    router.replace("/login");
+                    }}
+                    hitSlop={8}>
                 <Text style={styles.bottomLink}>登入</Text>
               </Pressable>
             </View>
           </View>
           <Modal
-                visible={successVisible}
-                transparent
-                animationType="fade"
-                onRequestClose={() => setSuccessVisible(false)}
-                >
+            visible={successVisible}
+            transparent
+            animationType="fade"
+            onRequestClose={() => setSuccessVisible(false)}
+            >
                 <View style={styles.modalOverlay}>
-                    <View style={styles.modalCard}>
-                    <View style={styles.modalIconWrap}>
-                        <Ionicons name="checkmark" size={36} color={TEAL} />
+                    <View style={styles.modalCardSuccess}>
+                    <View style={styles.modalSuccessIconWrap}>
+                        <Ionicons name="checkmark" size={28} color={TEAL} />
                     </View>
 
                     <Text style={styles.modalTitle}>註冊成功!</Text>
@@ -287,7 +313,7 @@ export default function RegisterScreen() {
                     <Pressable
                         onPress={() => {
                         setSuccessVisible(false);
-                        router.replace("/login"); // bấm 確定 -> về login
+                        router.replace("/login");
                         }}
                         style={({ pressed }) => [styles.modalBtn, pressed && { opacity: 0.9 }]}
                     >
@@ -295,7 +321,8 @@ export default function RegisterScreen() {
                     </Pressable>
                     </View>
                 </View>
-                </Modal>
+            </Modal>
+
 
         </ScrollView>
       </KeyboardAvoidingView>
@@ -455,6 +482,30 @@ modalBtnText: {
   fontSize: 20,
   fontWeight: "500",
   color: "#111",
+},
+modalCardSuccess: {
+  width: "100%",
+  maxWidth: 520,
+  backgroundColor: "white",
+  borderRadius: 22,
+  paddingVertical: 26,
+  paddingHorizontal: 22,
+  alignItems: "center",
+  shadowColor: "#000",
+  shadowOpacity: 0.18,
+  shadowRadius: 10,
+  shadowOffset: { width: 0, height: 6 },
+  elevation: 10,
+},
+modalSuccessIconWrap: {
+  width: 56,
+  height: 56,
+  borderRadius: 28,
+  borderWidth: 3,
+  borderColor: TEAL,
+  justifyContent: "center",
+  alignItems: "center",
+  marginBottom: 16,
 },
 
 });
