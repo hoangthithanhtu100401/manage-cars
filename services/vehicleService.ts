@@ -3,6 +3,7 @@ import { apiPost } from "@/services/api";
 import { getToken } from "@/services/token";
 import { apiDelete } from "@/services/api"; 
 import {apiPut} from "@/services/api";
+import { authService } from "@/services/authService";
 
 export type UpdateVehicleBody = {
   plateNumber: string;
@@ -15,8 +16,8 @@ export type UpdateVehicleBody = {
 
 export const vehicleService = {
   async updateStatus(params: { vehicleId: number; employeeId: number; status: "IN" | "OUT" }) {
-    const token = await getToken();
-    const qs = new URLSearchParams({
+    const auth = await authService.getAuth();
+    const token = auth?.token;    const qs = new URLSearchParams({
       vehicleId: String(params.vehicleId),
       employeeId: String(params.employeeId),
       status: params.status,
@@ -26,11 +27,13 @@ export const vehicleService = {
     return apiPost(`/api/v1/vehicle/status?${qs}`, {}, token ?? undefined);
   },
   async deleteById(vehicleId: number) {
-    const token = await getToken();
+    const auth = await authService.getAuth();
+    const token = auth?.token;
     return apiDelete(`/api/v1/vehicle?vehicleId=${vehicleId}`, token ?? undefined);
   },
   async updateVehicle(vehicleId: number, body: UpdateVehicleBody) {
-  const token = await getToken();
-  return apiPut(`/api/v1/vehicle/${vehicleId}`, body, token ?? undefined);
+    const auth = await authService.getAuth();
+    const token = auth?.token;
+    return apiPut(`/api/v1/vehicle/${vehicleId}`, body, token ?? undefined);
 }
 };
