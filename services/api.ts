@@ -73,7 +73,7 @@ export async function apiGet<T>(path: string, token?: string): Promise<T> {
   return data as T;
 }
 
-export async function apiDelete<T>(path: string, token?: string): Promise<T> {
+export async function apiDelete<T>(path: string, token?: string, body?: any): Promise<T> {
   console.log("API URL:", `${API_BASE_URL}${path}`);
 
   const res = await fetch(`${API_BASE_URL}${path}`, {
@@ -122,7 +122,6 @@ export async function apiPut<T>(
     throw err;
   }
 
-  // nhiều API PUT trả body rỗng -> đảm bảo không bị undefined
   return (data ?? ({} as any)) as T;
 }
 
