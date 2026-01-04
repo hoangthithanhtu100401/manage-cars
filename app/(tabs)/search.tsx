@@ -1,9 +1,8 @@
-import { VehicleCard } from '@/components/common/VehicleCard'; // Nếu bạn muốn giữ lại component cũ để tham khảo
 import { storageService } from '@/services/storageService';
 import { Vehicle } from '@/types/vehicle';
 import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect, useRouter } from 'expo-router';
-import React, { useCallback, useEffect, useState, useRef } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import {
   Animated,
   FlatList,
@@ -123,7 +122,7 @@ export default function SearchTab() {
           {filteredVehicles.length === 0 ? (
             <View style={styles.emptyContainer}>
               <Text style={styles.emptyText}>
-                {searchQuery ? 'Không tìm thấy xe' : 'Chưa có dữ liệu xe'}
+                {searchQuery ? '未找到車輛' : '尚無車輛資料'}
               </Text>
             </View>
           ) : (
