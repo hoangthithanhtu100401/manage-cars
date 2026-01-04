@@ -14,7 +14,7 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Modal } from "react-native";
 import { loginApi } from "@/services/auth";
-import { setToken } from "@/services/token";
+import { setToken, setRefreshToken} from "@/services/token";
 import {
   getRememberEnabled,
   loadRememberAccount,
@@ -22,6 +22,9 @@ import {
   clearRememberAccount,
   setRememberEnabled,
 } from "@/services/remember";
+import { setUserId } from "@/services/session";
+import { authService } from "@/services/authService";
+
 
 const TEAL = "#59C6BC";
 const BORDER = "#CFCFCF";
@@ -111,8 +114,16 @@ const accountError = useMemo(() => {
     try {
             setLoading(true);
 
-            const { token } = await loginApi(ownerName.trim(), license.trim());
-            await setToken(token);
+            const res = await loginApi(ownerName.trim(), license.trim());
+            const raw = res.raw;
+
+    await authService.saveAuth({
+      userId: raw.userId,
+      token: raw.token,
+      refreshToken: raw.refreshToken,
+      displayName: raw.displayName,
+      expiration: raw.expiration,
+    });
             if (remember) {
                 await setRememberEnabled(true);
                 await saveRememberAccount(ownerName.trim(), license);

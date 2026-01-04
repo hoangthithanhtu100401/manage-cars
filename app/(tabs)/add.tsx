@@ -1,4 +1,5 @@
 import { storageService } from '@/services/storageService';
+import { createVehicleApi } from '@/services/vehicle';
 import { getCurrentDate } from '@/utils/dateUtils';
 import { useRouter } from 'expo-router';
 import React, { useState } from 'react';
@@ -12,6 +13,9 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
+import { Ionicons } from "@expo/vector-icons";
+import { Modal } from "react-native";
+const TEAL = "#59C6BC";
 
 export default function AddTab() {
   const router = useRouter();
@@ -20,6 +24,10 @@ export default function AddTab() {
   const [phone, setPhone] = useState('');
   const [status, setStatus] = useState<'IN' | 'OUT'>('IN');
   const fadeAnim = React.useRef(new Animated.Value(0)).current;
+  const [successVisible, setSuccessVisible] = useState(false);
+  const [errorVisible, setErrorVisible] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
+
 
   // Error states
   const [nameError, setNameError] = useState('');
@@ -89,43 +97,39 @@ export default function AddTab() {
   };
 
   const handleSave = async () => {
-    // Validate all fields
-    const isNameValid = validateName(name);
-    const isLicensePlateValid = validateLicensePlate(licensePlate);
-    const isPhoneValid = validatePhone(phone);
+  const isNameValid = validateName(name);
+  const isLicensePlateValid = validateLicensePlate(licensePlate);
+  const isPhoneValid = validatePhone(phone);
 
-    if (!isNameValid || !isLicensePlateValid || !isPhoneValid) {
+  if (!isNameValid || !isLicensePlateValid || !isPhoneValid) {
+    return;
+  }
+
+  try {
+    const res = await createVehicleApi({
+      plateNumber: licensePlate.trim(),
+      licenseNumber: licensePlate.trim(),
+      owner: name.trim(),
+      phone: phone.trim(),
+      vehicleStatus: status,
+    });
+
+    if (!res) {
+      setErrorMessage("車牌號已存在");
+      setErrorVisible(true);
       return;
     }
 
-    try {
-      await storageService.addVehicle({
-        name: name.trim(),
-        licensePlate: licensePlate.trim(),
-        phone: phone.trim(),
-        dateAdded: getCurrentDate(),
-        status: status,
-      });
+    console.log("CREATE VEHICLE OK:", res);
+    setSuccessVisible(true);
+  } catch (e: any) {
+    console.log("CREATE VEHICLE ERROR:", e);
 
-      Alert.alert('成功', '儲存成功', [
-        {
-          text: '確定',
-          onPress: () => {
-            setName('');
-            setLicensePlate('');
-            setPhone('');
-            setStatus('IN');
-            setNameError('');
-            setLicensePlateError('');
-            setPhoneError('');
-            router.push('/(tabs)/search');
-          },
-        },
-      ]);
-    } catch (error) {
-      Alert.alert('錯誤', '儲存失敗');
-    }
-  };
+    setErrorMessage("車牌號已存在");
+    setErrorVisible(true);
+  }
+};
+
 
   return (
     <View style={styles.container}>
@@ -262,6 +266,70 @@ export default function AddTab() {
           <Text style={styles.saveButtonText}>確定</Text>
         </TouchableOpacity>
       </ScrollView>
+      <Modal
+  visible={successVisible}
+  transparent
+  animationType="fade"
+  onRequestClose={() => setSuccessVisible(false)}
+>
+  <View style={styles.modalOverlay}>
+    <View style={styles.modalCard}>
+      <View style={styles.modalIconWrap}>
+        <Ionicons name="checkmark" size={34} color={TEAL} />
+      </View>
+
+      <Text style={styles.modalTitle}>新增成功</Text>
+
+      <TouchableOpacity
+        activeOpacity={0.9}
+        style={styles.modalBtn}
+        onPress={() => {
+          setSuccessVisible(false);
+
+          // reset form
+          setName("");
+          setLicensePlate("");
+          setPhone("");
+          setStatus("IN");
+          setNameError("");
+          setLicensePlateError("");
+          setPhoneError("");
+
+          // về search
+          router.push("/(tabs)/search");
+        }}
+      >
+        <Text style={styles.modalBtnText}>確定</Text>
+      </TouchableOpacity>
+    </View>
+  </View>
+</Modal>
+<Modal
+  visible={errorVisible}
+  transparent
+  animationType="fade"
+  onRequestClose={() => setErrorVisible(false)}
+>
+  <View style={styles.modalOverlay}>
+    <View style={styles.modalCard}>
+      <View style={styles.modalErrorIconWrap}>
+        <Text style={styles.modalErrorIconText}>i</Text>
+      </View>
+
+      <Text style={styles.modalTitle}>{errorMessage}</Text>
+
+      <TouchableOpacity
+        activeOpacity={0.9}
+        style={styles.modalBtn}
+        onPress={() => setErrorVisible(false)}
+      >
+        <Text style={styles.modalBtnText}>確定</Text>
+      </TouchableOpacity>
+    </View>
+  </View>
+</Modal>
+
+
     </View>
   );
 }
@@ -407,4 +475,76 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: '#FFFFFF',
   },
+  modalOverlay: {
+  flex: 1,
+  backgroundColor: "rgba(0,0,0,0.35)",
+  justifyContent: "center",
+  alignItems: "center",
+  paddingHorizontal: 18,
+},
+modalCard: {
+  width: "100%",
+  maxWidth: 560,
+  backgroundColor: "#FFFFFF",
+  borderRadius: 26,
+  paddingTop: 26,
+  paddingBottom: 22,
+  paddingHorizontal: 22,
+  alignItems: "center",
+
+  shadowColor: "#000",
+  shadowOpacity: 0.18,
+  shadowRadius: 16,
+  shadowOffset: { width: 0, height: 10 },
+  elevation: 12,
+},
+modalIconWrap: {
+  width: 64,
+  height: 64,
+  borderRadius: 32,
+  borderWidth: 4,
+  borderColor: TEAL,
+  justifyContent: "center",
+  alignItems: "center",
+  marginBottom: 16,
+},
+modalTitle: {
+  fontSize: 22,
+  fontWeight: "700",
+  color: "#111",
+  marginBottom: 18,
+},
+modalBtn: {
+  width: "100%",
+  height: 56,
+  borderRadius: 18,
+  borderWidth: 1.5,
+  borderColor: "#D9D9D9",
+  justifyContent: "center",
+  alignItems: "center",
+  backgroundColor: "#FFFFFF",
+},
+modalBtnText: {
+  fontSize: 20,
+  fontWeight: "600",
+  color: "#111",
+},
+modalErrorIconWrap: {
+  width: 64,
+  height: 64,
+  borderRadius: 32,
+  borderWidth: 4,
+  borderColor: "#FF4D4F",
+  justifyContent: "center",
+  alignItems: "center",
+  marginBottom: 16,
+},
+modalErrorIconText: {
+  color: "#FF4D4F",
+  fontSize: 34,
+  fontWeight: "900",
+  marginTop: -2,
+},
+
+
 });

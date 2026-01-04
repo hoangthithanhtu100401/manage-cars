@@ -1,25 +1,43 @@
 import { apiPost } from "@/services/api";
 
-export type LoginResponse = any; // bạn có thể type chặt sau khi biết response thật
+export type LoginResponse = {
+  userId: number;
+  displayName: string;
+  providerId: string | null;
+  expiration: number;
+  token: string;
+  refreshToken: string;
+  role: string[];
+  photoURL: string | null;
+};
+
+function unwrap<T>(res: any): T {
+  return (res?.data ?? res) as T;
+}
 
 export async function loginApi(username: string, password: string) {
-  const data = await apiPost<LoginResponse>("/api/v1/login", {
-    username,
-    password,
-  });
+  const res = await apiPost<LoginResponse | { data: LoginResponse }>(
+    "/api/v1/login",
+    { username, password }
+  );
 
-  // Backend trả token key gì thì bạn map ở đây:
-  const token =
-    data?.token ||
-    data?.access_token ||
-    data?.accessToken ||
-    data?.jwt ||
-    data?.data?.token;
+  const data = unwrap<LoginResponse>(res);
 
-  if (!token) {
-    // để bạn dễ debug nếu API trả structure khác
-    throw { status: 500, message: "Token not found in response", data };
+  const token = data?.token;
+  const refreshToken = data?.refreshToken;
+  const userId = data?.userId;
+
+  if (!token || !userId) {
+    throw new Error("Login response missing token/userId");
   }
 
-  return { token, raw: data };
+  return {
+    token,
+    refreshToken,
+    userId,
+    displayName: data.displayName,
+    expiration: data.expiration,
+    roles: data.role ?? [],
+    raw: data,
+  };
 }

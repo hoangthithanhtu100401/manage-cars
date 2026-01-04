@@ -34,6 +34,7 @@ function PillInput({
   onPressRight,
   onBlur,
   isError,
+    maxLength,
 }: {
   iconLeft: keyof typeof Ionicons.glyphMap;
   placeholder: string;
@@ -45,6 +46,7 @@ function PillInput({
   onPressRight?: () => void;
   onBlur?: () => void;
   isError?: boolean;
+  maxLength?: number;
 }) {
   return (
     <View style={[styles.inputBox, isError && styles.inputBoxError]}>
@@ -61,6 +63,7 @@ function PillInput({
         autoCapitalize="none"
         autoCorrect={false}
         onBlur={onBlur}
+        maxLength={10}
       />
 
       {rightIcon ? (
@@ -72,20 +75,16 @@ function PillInput({
   );
 }
 
-/** ===== Validators (đúng theo ảnh) ===== */
 function isTaiwanPhone(phone: string) {
   const digits = phone.replace(/\D/g, "");
-  // TW mobile thường: 09xxxxxxxx (10 digits)
   return /^09\d{8}$/.test(digits);
 }
 
 function isEmail(email: string) {
-  // regex vừa đủ dùng cho UI
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim());
 }
 
 function isPasswordValid(pw: string) {
-  // 8~20, có ít nhất 1 chữ và 1 số
   const lenOk = pw.length >= 8 && pw.length <= 20;
   const hasLetter = /[A-Za-z]/.test(pw);
   const hasNumber = /\d/.test(pw);
@@ -100,6 +99,7 @@ export default function RegisterScreen() {
   const [phone, setPhone] = useState("");
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
+  const [phoneError, setPhoneError] = useState('');
 
   const [hidePw, setHidePw] = useState(true);
   const [hideConfirm, setHideConfirm] = useState(true);
@@ -108,8 +108,27 @@ const [loading, setLoading] = useState(false);
 const [errorVisible, setErrorVisible] = useState(false);
 const [errorMsg, setErrorMsg] = useState("註冊失敗，請稍後再試");
 
+const validatePhone = (value: string) => {
+    if (!value.trim()) {
+      setPhoneError('手機號碼不能為空');
+      return false;
+    }
+    // Validate: must start with 09 and have exactly 10 digits
+    const phoneRegex = /^09\d{8}$/;
+    if (!phoneRegex.test(value.trim())) {
+      setPhoneError('手機號碼必須以09開頭且為10位數字');
+      return false;
+    }
+    setPhoneError('');
+    return true;
+  };
+  const setValueAndTouch =
+  (key: FieldKey, setter: (t: string) => void) =>
+  (t: string) => {
+    setter(t);
+    setTouched((prev) => ({ ...prev, [key]: true }));
+  };
 
-  // touched: chỉ hiện lỗi sau khi user chạm vào field (hoặc submit)
   const [touched, setTouched] = useState<Record<FieldKey, boolean>>({
     name: false,
     email: false,
@@ -202,7 +221,7 @@ const onSubmit = async () => {
                 iconLeft="person-outline"
                 placeholder="帳號"
                 value={name}
-                onChangeText={setName}
+                onChangeText={setValueAndTouch("name", setName)}
                 onBlur={() => markTouched("name")}
                 isError={showError("name")}
               />
@@ -215,7 +234,8 @@ const onSubmit = async () => {
                 iconLeft="mail-outline"
                 placeholder="E-mail"
                 value={email}
-                onChangeText={setEmail}
+                onChangeText={setValueAndTouch("email", setEmail)}
+
                 keyboardType="email-address"
                 onBlur={() => markTouched("email")}
                 isError={showError("email")}
@@ -229,9 +249,13 @@ const onSubmit = async () => {
                 iconLeft="call-outline"
                 placeholder="手機號碼"
                 value={phone}
-                onChangeText={setPhone}
+                onChangeText={(t) => {
+                const digits = t.replace(/\D/g, "");
+                setTouched((prev) => ({ ...prev, phone: true }));
+                setPhone(digits);
+                }}
                 keyboardType="phone-pad"
-                onBlur={() => markTouched("phone")}
+                maxLength={10}
                 isError={showError("phone")}
               />
               {showError("phone") ? <Text style={styles.errorText}>{errors.phone}</Text> : null}
@@ -243,7 +267,7 @@ const onSubmit = async () => {
                 iconLeft="lock-closed-outline"
                 placeholder="密碼"
                 value={password}
-                onChangeText={setPassword}
+                onChangeText={setValueAndTouch("password", setPassword)}
                 secureTextEntry={hidePw}
                 rightIcon={hidePw ? "eye-off-outline" : "eye-outline"}
                 onPressRight={() => setHidePw((v) => !v)}
@@ -261,7 +285,7 @@ const onSubmit = async () => {
                 iconLeft="lock-closed-outline"
                 placeholder="密碼確認"
                 value={confirm}
-                onChangeText={setConfirm}
+                onChangeText={setValueAndTouch("confirm", setConfirm)}
                 secureTextEntry={hideConfirm}
                 rightIcon={hideConfirm ? "eye-off-outline" : "eye-outline"}
                 onPressRight={() => setHideConfirm((v) => !v)}
