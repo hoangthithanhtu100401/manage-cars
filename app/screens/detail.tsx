@@ -35,6 +35,14 @@ export default function DetailScreen() {
       setVehicle(found);
     }
   };
+  const handleEdit = () => {
+      if (vehicle) {
+        router.push({
+          pathname: '/screens/edit',
+          params: { vehicleId: vehicle.id },
+        });
+      }
+    };
 
   const handleStatusChange = async (status: 'IN' | 'OUT') => {
     if (!vehicle) return;
@@ -84,7 +92,9 @@ export default function DetailScreen() {
           <Ionicons name="arrow-back" size={24} color="#333" />
         </TouchableOpacity>
         <Text style={styles.title}>{vehicle.licensePlate}</Text>
-        <View style={styles.placeholder} />
+        <TouchableOpacity onPress={handleEdit} style={styles.editButton}>
+          <Text style={styles.editText}>編輯</Text>
+        </TouchableOpacity>
       </View>
 
       <Animated.View style={[styles.content, { opacity: fadeAnim }]}>
@@ -163,9 +173,6 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: '600',
     color: '#333333',
-  },
-  placeholder: {
-    width: 34, 
   },
   content: {
     flex: 1,
@@ -254,6 +261,15 @@ const styles = StyleSheet.create({
   deleteText: {
     fontSize: 16,
     color: '#FF8B9A',
+    fontWeight: '500',
+  },
+  editButton: {
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+  },
+  editText: {
+    fontSize: 16,
+    color: '#5FCCC4',
     fontWeight: '500',
   },
 });
