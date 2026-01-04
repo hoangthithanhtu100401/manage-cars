@@ -39,33 +39,33 @@ export default function TabLayout() {
         },
       }}>
 
-      <Tabs.Screen
-        name="search"
-        options={{
-          title: 'Search',
-          // Code icon giờ rất gọn, không cần View bao bọc
-          tabBarIcon: ({ color }) => (
-            <Ionicons name="search" size={28} color={color} />
-          ),
-        }}
-      />
+        <Tabs.Screen
+          name="search"
+          options={{
+            title: '搜尋',
+            // Code icon giờ rất gọn, không cần View bao bọc
+            tabBarIcon: ({ color }) => (
+              <Ionicons name="search" size={28} color={color} />
+            ),
+          }}
+        />
 
-      <Tabs.Screen
-        name="add"
-        options={{
-          title: 'Add',
-          tabBarIcon: ({ color }) => (
-            <Ionicons name="add-circle-outline" size={32} color={color} />
-          ),
-        }}
-      />
+        <Tabs.Screen
+          name="add"
+          options={{
+            title: '新增',
+            tabBarIcon: ({ color }) => (
+              <Ionicons name="add-circle-outline" size={32} color={color} />
+            ),
+          }}
+        />
 
       {/* Các màn hình ẩn */}
       <Tabs.Screen name="index" options={{ href: null }} />
       <Tabs.Screen name="explore" options={{ href: null }} />
     </Tabs>
     </SafeAreaView>
-    
+
   );
 }
 
