@@ -1,10 +1,8 @@
-import { storageService } from '@/services/storageService';
 import { createVehicleApi } from '@/services/vehicle';
 import { getCurrentDate } from '@/utils/dateUtils';
 import { useRouter } from 'expo-router';
 import React, { useState } from 'react';
 import {
-  Alert,
   Animated,
   ScrollView,
   StyleSheet,
@@ -340,8 +338,8 @@ const styles = StyleSheet.create({
     backgroundColor: '#F5F5F5',
   },
   header: {
-    paddingTop: 50,
-    paddingBottom: 15,
+    paddingTop: 20,
+    paddingBottom: 20,
     paddingHorizontal: 20,
     backgroundColor: '#FFFFFF',
     borderBottomWidth: 1,

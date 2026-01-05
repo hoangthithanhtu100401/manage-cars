@@ -348,27 +348,24 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     paddingHorizontal: 16,
-    paddingTop: 6,
   },
 
-  // ✅ header
   header: {
-    height: 48,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
   },
-  headerLeftPlaceholder: { width: 44, height: 44 },
+  headerLeftPlaceholder: { width: 30, height: 30 },
   headerCenterPlaceholder: { flex: 1 },
   headerIconBtn: {
-    width: 44,
-    height: 44,
+    width: 30,
+    height: 30,
     justifyContent: "center",
     alignItems: "center",
   },
 
   // Search
-  searchSection: { marginBottom: 16, marginTop: 4 },
+  searchSection: { marginBottom: 16, marginTop: 20 },
   searchInputContainer: {
     flexDirection: "row",
     alignItems: "center",

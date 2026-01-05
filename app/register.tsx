@@ -34,7 +34,7 @@ function PillInput({
   onPressRight,
   onBlur,
   isError,
-    maxLength,
+  maxLength,
 }: {
   iconLeft: keyof typeof Ionicons.glyphMap;
   placeholder: string;
@@ -63,7 +63,7 @@ function PillInput({
         autoCapitalize="none"
         autoCorrect={false}
         onBlur={onBlur}
-        maxLength={10}
+        maxLength={maxLength}
       />
 
       {rightIcon ? (
@@ -224,6 +224,7 @@ const onSubmit = async () => {
                 onChangeText={setValueAndTouch("name", setName)}
                 onBlur={() => markTouched("name")}
                 isError={showError("name")}
+              
               />
               {showError("name") ? <Text style={styles.errorText}>{errors.name}</Text> : null}
             </View>
@@ -235,7 +236,6 @@ const onSubmit = async () => {
                 placeholder="E-mail"
                 value={email}
                 onChangeText={setValueAndTouch("email", setEmail)}
-
                 keyboardType="email-address"
                 onBlur={() => markTouched("email")}
                 isError={showError("email")}
@@ -254,6 +254,7 @@ const onSubmit = async () => {
                 setTouched((prev) => ({ ...prev, phone: true }));
                 setPhone(digits);
                 }}
+                onBlur={() => markTouched("phone")} 
                 keyboardType="phone-pad"
                 maxLength={10}
                 isError={showError("phone")}
@@ -273,6 +274,7 @@ const onSubmit = async () => {
                 onPressRight={() => setHidePw((v) => !v)}
                 onBlur={() => markTouched("password")}
                 isError={showError("password")}
+                maxLength={20}
               />
               {showError("password") ? (
                 <Text style={styles.errorText}>{errors.password}</Text>
@@ -291,6 +293,7 @@ const onSubmit = async () => {
                 onPressRight={() => setHideConfirm((v) => !v)}
                 onBlur={() => markTouched("confirm")}
                 isError={showError("confirm")}
+                maxLength={20}
               />
               {showError("confirm") ? (
                 <Text style={styles.errorText}>{errors.confirm}</Text>

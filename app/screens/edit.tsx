@@ -101,11 +101,9 @@ export default function EditScreen() {
       {/* Header */}
       <View style={styles.header}>
         <Pressable onPress={() => router.back()} hitSlop={10} style={styles.backBtn}>
-          <Ionicons name="chevron-back" size={28} color="#111" />
+          <Ionicons name="arrow-back" size={24} color="#1E2939" />
         </Pressable>
-
         <Text style={styles.headerTitle}>編輯車輛</Text>
-
         {/* placeholder để title luôn ở giữa */}
         <View style={styles.headerRightPlaceholder} />
       </View>
@@ -230,10 +228,10 @@ const styles = StyleSheet.create({
   safe: { flex: 1, backgroundColor: BG },
 
   header: {
-    height: 56,
     flexDirection: "row",
     alignItems: "center",
-    paddingHorizontal: 16,
+    paddingHorizontal: 20,
+    paddingVertical: 15,
     borderBottomWidth: 1,
     borderBottomColor: "#E5E5E5",
     backgroundColor: "#FFFFFF",

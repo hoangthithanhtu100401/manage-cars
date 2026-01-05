@@ -6,6 +6,8 @@ import "react-native-reanimated";
 export default function RootLayout() {
   return (
     <ThemeProvider value={DefaultTheme}>
+      <StatusBar style="dark" backgroundColor="#FFFFFF" />
+
       <Stack initialRouteName="index" screenOptions={{ headerShown: false }}>
         {/* IMPORTANT: add these */}
         <Stack.Screen name="index" />
@@ -18,7 +20,6 @@ export default function RootLayout() {
         <Stack.Screen name="screens/edit" />
         <Stack.Screen name="modal" options={{ presentation: "modal", title: "Modal" }} />
       </Stack>
-      <StatusBar style="dark" />
     </ThemeProvider>
   );
 }
