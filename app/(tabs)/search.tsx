@@ -326,7 +326,7 @@ export default function SearchTab() {
               </Pressable>
 
               <Pressable
-                style={({ pressed }) => [styles.confirmBtnPrimary, pressed && { opacity: 0.9 }]}
+                style={({ pressed }) => [styles.confirmBtn, pressed && { opacity: 0.9 }]}
                 onPress={async () => {
                   setLogoutConfirmVisible(false);
                   await handleLogout();
@@ -561,7 +561,7 @@ settingsItemText: {
     borderRadius: 16,
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "#5CC6BA",
+    backgroundColor: "#ffffff",
   },
-  confirmBtnPrimaryText: { fontSize: 16, fontWeight: "800", color: "#FFFFFF" },
+  confirmBtnPrimaryText: {fontSize: 16, fontWeight: "700", color: "#FE6262" }
 });
