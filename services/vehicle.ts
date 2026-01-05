@@ -1,5 +1,5 @@
 import { apiPost } from "./api";
-import { getToken } from "./token";
+import { authService } from "./authService";
 
 export type VehicleStatus = "IN" | "OUT";
 
@@ -28,7 +28,7 @@ export type CreateVehicleResponse = {
 };
 
 export async function createVehicleApi(body: CreateVehicleBody) {
-  const token = await getToken();
+  const token = await authService.getToken();
 
   if (!token) throw new Error("NO_TOKEN");
 
