@@ -4,7 +4,10 @@ export interface Vehicle {
   licensePlate: string;
   phone: string;
   createdAt: string;
+  lastIn: string;
+  lastOut: string;
   status: 'IN' | 'OUT';
+  date: string;
 }
 
 export interface VehicleData {

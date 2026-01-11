@@ -128,7 +128,7 @@ export default function EditScreen() {
               />
 
               <Field
-                label="行車執照"
+                label="汽車牌照"
                 value={licensePlate}
                 onChangeText={setLicensePlate}
                 placeholder="AAA - 1234"

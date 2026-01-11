@@ -38,6 +38,7 @@ export const VehicleCard: React.FC<VehicleCardProps> = ({ vehicle, onPress }) =>
           <View style={styles.textContainer}>
             <Text style={styles.licensePlate}>{vehicle.licensePlate}</Text>
             <Text style={styles.name}>{vehicle.name}</Text>
+            <Text style={styles.date}>{vehicle.date}</Text>
           </View>
           <View style={[styles.statusBadge, vehicle.status === 'IN' ? styles.inBadge : styles.outBadge]}>
             <Text style={styles.statusText}>{vehicle.status}</Text>
@@ -95,5 +96,9 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
     fontSize: 14,
     fontWeight: '600',
+  },
+  date: {
+    fontSize: 12,
+    color: '#374441',
   },
 });

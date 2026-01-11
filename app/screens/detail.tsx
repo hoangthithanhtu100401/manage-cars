@@ -17,6 +17,7 @@ import { storageService } from "../../services/storageService";
 import { Vehicle } from "../../types/vehicle";
 import { vehicleService } from "@/services/vehicleService";
 import { authService } from "@/services/authService";
+import { buildVehicleDateLabel } from "@/utils/dateUtils";
 
 const RED = "#FE6262";
 
@@ -29,6 +30,7 @@ export default function DetailScreen() {
 
   const [deleteVisible, setDeleteVisible] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  const date = vehicle?.status === "IN" ? vehicle.lastIn : vehicle?.lastOut;
 
   const vehicleId = Array.isArray(params.vehicleId) ? params.vehicleId[0] : params.vehicleId;
 
@@ -69,12 +71,25 @@ export default function DetailScreen() {
 
     const current = vehicle.status;
     const next = status;
+    const nowIso = new Date().toISOString();
 
     setChangingStatus(true);
-
+    const nextLastIn = next === "IN" ? nowIso : vehicle.lastIn;
+    const nextLastOut = next === "OUT" ? nowIso : vehicle.lastOut;
     try {
-      setVehicle({ ...vehicle, status: next });
-      await storageService.updateVehicleStatus(vehicle.id, next);
+      setVehicle({
+      ...vehicle,
+      status: next,
+      lastIn: nextLastIn,
+      lastOut: nextLastOut,
+      date: buildVehicleDateLabel(next, nextLastIn, nextLastOut),
+      });
+      await storageService.updateVehicle(vehicle.id, {
+      status: next,
+      lastIn: nextLastIn,
+      lastOut: nextLastOut,
+      date: buildVehicleDateLabel(next, nextLastIn, nextLastOut),
+      });
 
       const auth = await authService.getAuth();
       const employeeId = auth?.userId;
@@ -88,7 +103,12 @@ export default function DetailScreen() {
     } catch (error) {
       console.log("STATUS UPDATE ERROR:", error);
 
-      setVehicle({ ...vehicle, status: current });
+       setVehicle({
+        ...vehicle,
+        status: current,
+        date: buildVehicleDateLabel(current, vehicle.lastIn, vehicle.lastOut),
+      });
+
       await storageService.updateVehicleStatus(vehicle.id, current);
       Alert.alert("錯誤", "狀態更新失敗");
     } finally {
@@ -151,7 +171,7 @@ export default function DetailScreen() {
           </View>
           <View style={styles.divider} />
           <View style={styles.infoRow}>
-            <Text style={styles.label}>行車執照</Text>
+            <Text style={styles.label}>汽車牌照</Text>
             <Text style={styles.value}>{vehicle.licensePlate}</Text>
           </View>
           <View style={styles.divider} />
@@ -170,6 +190,10 @@ export default function DetailScreen() {
             <View style={[styles.statusBadge, isStatusIn ? styles.inBadge : styles.outBadge]}>
               <Text style={styles.statusText}>{vehicle.status}</Text>
             </View>
+          </View>
+          <View style={styles.infoRow}>
+            <Text style={styles.label}></Text>
+            <Text style={styles.value}>{vehicle.date}</Text>
           </View>
         </View>
 

@@ -3,7 +3,7 @@ import { authService } from '@/services/authService';
 import { storageService } from '@/services/storageService';
 import { vehicleService } from "@/services/vehicleService";
 import { Vehicle } from '@/types/vehicle';
-import { formatDateYMD } from '@/utils/dateUtils';
+import { formatDateYMD, formatDateYMDH } from '@/utils/dateUtils';
 import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect, useRouter } from 'expo-router';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
@@ -19,6 +19,7 @@ import {
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import {buildVehicleDateLabel} from '@/utils/dateUtils';
 
 type VehicleApiItem = {
   id: number;
@@ -38,13 +39,26 @@ type VehicleListResponse = {
 };
 
 const mapApiToVehicle = (v: VehicleApiItem): Vehicle => {
+  const rawLastIn = v.lastIn ?? "";
+const rawLastOut = v.lastOut ?? "";
+
+const lastInDate = rawLastIn ? formatDateYMDH(rawLastIn) : "";
+const lastOutDate = rawLastOut ? formatDateYMDH(rawLastOut) : "";
+
+const lastIn = lastInDate ? `IN ${lastInDate}` : "";
+const lastOut = lastOutDate ? `OUT ${lastOutDate}` : "";
+
+const date = v.status === "IN" ? lastIn : lastOut;
   return {
     id: String(v.id),
     licensePlate: v.plateNumber,
     name: v.ownerName,
     phone: v.phone,
+    lastIn,
+    lastOut,
     status: v.status,
-    createdAt: formatDateYMD(v.createdAt),
+    date,
+    createdAt: v.createdAt ? formatDateYMD(v.createdAt) : "",
   } as Vehicle;
 };
 
@@ -74,6 +88,7 @@ const VehicleItemNew = ({
       <Pressable style={styles.cardInfo} onPress={onPress}>
         <Text style={[styles.cardTitle, { color: textColor }]}>{item.licensePlate}</Text>
         <Text style={[styles.cardSubtitle, { color: textColor }]}>{item.name}</Text>
+        <Text style={[styles.cardMeta, { color: textColor }]}>{item.date}</Text>
       </Pressable>
 
       <Pressable
@@ -186,9 +201,25 @@ export default function SearchTab() {
     const current = vehicle.status;
     const next: "IN" | "OUT" = current === "IN" ? "OUT" : "IN";
 
+  const nowIso = new Date().toISOString();
     setTogglingId(vehicle.id);
 
-    setVehicles((prev) => prev.map((v) => (v.id === vehicle.id ? { ...v, status: next } : v)));
+    setVehicles((prev) =>
+    prev.map((v) => {
+      if (v.id !== vehicle.id) return v;
+
+      const nextLastIn =  next === "IN" ? nowIso : v.lastIn;
+      const nextLastOut = next === "OUT" ? nowIso : v.lastOut;
+
+      return {
+        ...v,
+        status: next,
+        lastIn: nextLastIn,
+        lastOut: nextLastOut,
+        date: buildVehicleDateLabel(next, nextLastIn, nextLastOut),
+      };
+    })
+  );
 
     try {
       await storageService.updateVehicleStatus(vehicle.id, next);

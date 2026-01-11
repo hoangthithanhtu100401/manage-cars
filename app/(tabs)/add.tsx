@@ -52,13 +52,13 @@ export default function AddTab() {
 
   const validateLicensePlate = (value: string) => {
     if (!value.trim()) {
-      setLicensePlateError('行車執照不能為空');
+      setLicensePlateError('汽車牌照不能為空');
       return false;
     }
     // Validate format: AAAA-1234
     const licensePlateRegex = /^[A-Z]{4}-\d{4}$/;
     if (!licensePlateRegex.test(value.trim())) {
-      setLicensePlateError('行車執照格式錯誤 (例: AAAA-1234)');
+      setLicensePlateError('汽車牌照格式錯誤 (例: AAAA-1234)');
       return false;
     }
     setLicensePlateError('');
@@ -160,18 +160,18 @@ export default function AddTab() {
             {nameError ? <Text style={styles.errorText}>{nameError}</Text> : null}
           </View>
 
-          {/* 行車執照 */}
+          {/* 汽車牌照 */}
           <View style={styles.fieldContainer}>
-            <Text style={styles.label}>行車執照</Text>
+            <Text style={styles.label}>汽車牌照</Text>
             <TextInput
               style={[styles.textInput, licensePlateError && styles.textInputError]}
               value={licensePlate}
               onChangeText={(value) => {
                 setLicensePlate(value.toUpperCase());
-                validateLicensePlate(value.toUpperCase());
+                // validateLicensePlate(value.toUpperCase());
               }}
-              onBlur={() => validateLicensePlate(licensePlate)}
-              placeholder="AAAA-1234"
+              // onBlur={() => validateLicensePlate(licensePlate)}
+              placeholder="AAA-1234"
               placeholderTextColor="#C7C7CC"
               autoCapitalize="characters"
               maxLength={9}
