@@ -39,14 +39,14 @@ type VehicleListResponse = {
 };
 
 const mapApiToVehicle = (v: VehicleApiItem): Vehicle => {
-  const rawLastIn = v.lastIn ?? "";
-const rawLastOut = v.lastOut ?? "";
+  const rawLastIn = v.lastIn ?? "-";
+const rawLastOut = v.lastOut ?? "-";
 
-const lastInDate = rawLastIn ? formatDateYMDH(rawLastIn) : "";
-const lastOutDate = rawLastOut ? formatDateYMDH(rawLastOut) : "";
+const lastInDate = rawLastIn ? formatDateYMDH(rawLastIn) : "-";
+const lastOutDate = rawLastOut ? formatDateYMDH(rawLastOut) : "-";
 
-const lastIn = lastInDate ? `IN ${lastInDate}` : "";
-const lastOut = lastOutDate ? `OUT ${lastOutDate}` : "";
+const lastIn = lastInDate ? `IN ${lastInDate}` : "-";
+const lastOut = lastOutDate ? `OUT ${lastOutDate}` : "-";
 
 const date = v.status === "IN" ? lastIn : lastOut;
   return {
@@ -58,7 +58,7 @@ const date = v.status === "IN" ? lastIn : lastOut;
     lastOut,
     status: v.status,
     date,
-    createdAt: v.createdAt ? formatDateYMD(v.createdAt) : "",
+    createdAt: v.createdAt ? formatDateYMD(v.createdAt) : "-",
   } as Vehicle;
 };
 
