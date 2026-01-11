@@ -50,20 +50,20 @@ export default function AddTab() {
     return true;
   };
 
-  const validateLicensePlate = (value: string) => {
-    if (!value.trim()) {
-      setLicensePlateError('汽車牌照不能為空');
-      return false;
-    }
-    // Validate format: AAAA-1234
-    const licensePlateRegex = /^[A-Z]{4}-\d{4}$/;
-    if (!licensePlateRegex.test(value.trim())) {
-      setLicensePlateError('汽車牌照格式錯誤 (例: AAAA-1234)');
-      return false;
-    }
-    setLicensePlateError('');
-    return true;
-  };
+  // const validateLicensePlate = (value: string) => {
+  //   if (!value.trim()) {
+  //     setLicensePlateError('汽車牌照不能為空');
+  //     return false;
+  //   }
+  //   // Validate format: AAAA-1234
+  //   const licensePlateRegex = /^[A-Z]{4}-\d{4}$/;
+  //   if (!licensePlateRegex.test(value.trim())) {
+  //     setLicensePlateError('汽車牌照格式錯誤 (例: AAAA-1234)');
+  //     return false;
+  //   }
+  //   setLicensePlateError('');
+  //   return true;
+  // };
 
   const validatePhone = (value: string) => {
     if (!value.trim()) {
@@ -89,17 +89,17 @@ export default function AddTab() {
       !nameError &&
       !licensePlateError &&
       !phoneError &&
-      /^[A-Z]{4}-\d{4}$/.test(licensePlate.trim()) &&
+      // /^[A-Z]{4}-\d{4}$/.test(licensePlate.trim()) &&
       /^09\d{8}$/.test(phone.trim())
     );
   };
 
   const handleSave = async () => {
   const isNameValid = validateName(name);
-  const isLicensePlateValid = validateLicensePlate(licensePlate);
+  // const isLicensePlateValid = validateLicensePlate(licensePlate);
   const isPhoneValid = validatePhone(phone);
 
-  if (!isNameValid || !isLicensePlateValid || !isPhoneValid) {
+  if (!isNameValid  || !isPhoneValid) {
     return;
   }
 
@@ -176,7 +176,7 @@ export default function AddTab() {
               autoCapitalize="characters"
               maxLength={9}
             />
-            {licensePlateError ? <Text style={styles.errorText}>{licensePlateError}</Text> : null}
+            {/* {licensePlateError ? <Text style={styles.errorText}>{licensePlateError}</Text> : null} */}
           </View>
 
           {/* 手機號碼 */}
